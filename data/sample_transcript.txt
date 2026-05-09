@@ -1,0 +1,5 @@
+Alice: Today, 17th December,2025 we need to finalize the UI design.
+Bob: I completed the homepage but login flow needs review.
+Alice: Okay, deadline Friday. Any blockers?
+Charlie: Need API access tokens from DevOps.
+Alice: Bob will help Charlie on that today.

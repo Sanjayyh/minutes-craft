@@ -1,0 +1,18 @@
+{
+  "principal": {
+    "file": "principal_minutes.txt",
+    "focus": "Focus on policy decisions, approvals, academic performance, compliance, and institutional outcomes."
+  },
+  "teachers": {
+    "file": "teachers_minutes.txt",
+    "focus": "Focus on curriculum changes, student performance, teaching strategies, exams, and academic schedules."
+  },
+  "office_staff": {
+    "file": "office_staff_minutes.txt",
+    "focus": "Focus on administrative tasks, documentation, schedules, reporting, and coordination activities."
+  },
+  "support_staff": {
+    "file": "support_staff_minutes.txt",
+    "focus": "Focus on operational instructions, duties, schedules, and facility-related responsibilities."
+  }
+}

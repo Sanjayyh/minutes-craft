@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Meeting Minutes Generator | Multilingual & Role-Based</title>
+  <meta name="description"
+    content="Automatically generate professional, role-based meeting minutes from audio recordings and documents using AI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  
+</head>
+
+<body>
+
+  <!-- ── HEADER ── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🎙️</div>
+        <div class="logo-text">
+          <span class="logo-title">MinutesCraft</span>
+          <span class="logo-sub">Multilingual · Role-Based · Academic</span>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-phase">Phase 1–6</span>
+        <div class="status-dot" id="statusDot" title="System status"></div>
+        <span class="status-label" id="statusLabel">Checking...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title">Automatic <span class="gradient-text">Meeting Minutes</span> Generator</h1>
+      <p class="hero-desc">
+        Upload meeting audio or paste a transcript. Optionally add notes and slide documents.
+        Select participant roles and let AI generate personalized, professional meeting minutes — in seconds.
+      </p>
+      <div class="hero-chips">
+        <div class="chip">🌐 Multilingual (Malayalam → English)</div>
+        <div class="chip">🎯 Role-Based Personalization</div>
+        <div class="chip">🤖 Powered by Gemini AI</div>
+        <div class="chip">🎙️ Whisper ASR</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main-grid">
+
+    <!-- ── LEFT PANEL: INPUTS ── -->
+    <div class="panel panel-left">
+
+      <!-- STEP 1: Audio Upload -->
+      <div class="card" id="card-audio">
+        <div class="card-header">
+          <div class="step-badge">01</div>
+          <div>
+            <h2 class="card-title">Meeting Audio</h2>
+            <p class="card-subtitle">Phase 2 — Whisper Speech-to-Text</p>
+          </div>
+          <div class="card-icon">🎙️</div>
+        </div>
+
+        <div class="drop-zone" id="audioDropZone">
+          <div class="drop-zone-content">
+            <div class="drop-icon">🎵</div>
+            <p class="drop-label">Drop audio file here or <span class="link-text">browse</span></p>
+            <p class="drop-hint">Supports .wav · .mp3 · .m4a · .ogg</p>
+          </div>
+          <input type="file" id="audioFile" accept=".wav,.mp3,.m4a,.ogg,.flac" class="hidden-input" />
+        </div>
+        <div class="file-preview hidden" id="audioPreview">
+          <span class="file-icon">🎵</span>
+          <span class="file-name" id="audioFileName"></span>
+          <button class="remove-btn" onclick="removeFile('audio')">✕</button>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Source Language</label>
+            <select class="field-select" id="audioLanguage">
+              <option value="">Auto-detect</option>
+              <option value="ml">Malayalam (ml)</option>
+              <option value="hi">Hindi (hi)</option>
+              <option value="ta">Tamil (ta)</option>
+              <option value="te">Telugu (te)</option>
+              <option value="kn">Kannada (kn)</option>
+              <option value="en">English (en)</option>
+              <option value="fr">French (fr)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Whisper Model</label>
+            <select class="field-select" id="modelSize">
+              <option value="tiny">Tiny (fastest)</option>
+              <option value="base" selected>Base ★ recommended</option>
+              <option value="small">Small (better)</option>
+              <option value="medium">Medium (best)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="translateToggle" checked class="toggle-input" />
+            <span class="toggle-switch"></span>
+            Translate to English
+          </label>
+          <span class="toggle-hint">Recommended for non-English audio</span>
+        </div>
+
+        <button  type="button" class="btn btn-secondary" id="transcribeBtn" onclick="transcribeAudio()">
+          <span class="btn-icon">🔊</span> Transcribe Audio
+        </button>
+      </div>
+
+      <!-- STEP 2: Transcript -->
+      <div class="card" id="card-transcript">
+        <div class="card-header">
+          <div class="step-badge">02</div>
+          <div>
+            <h2 class="card-title">Meeting Transcript</h2>
+            <p class="card-subtitle">Phase 1 — Paste or auto-fill from audio</p>
+          </div>
+          <div class="card-icon">📝</div>
+        </div>
+        <textarea id="transcriptText" class="text-area" rows="7"
+          placeholder="Paste meeting transcript here, or transcribe audio above...&#10;&#10;Example:&#10;Principal: Good morning. Let's begin with last month's performance review...&#10;Teacher: The science results showed improvement in Grade 9 but..."></textarea>
+        <div class="char-count" id="transcriptCount">0 characters</div>
+      </div>
+
+      <!-- STEP 3: Meeting Details -->
+      <div class="card" id="card-details">
+        <div class="card-header">
+          <div class="step-badge">03</div>
+          <div>
+            <h2 class="card-title">Meeting Details</h2>
+            <p class="card-subtitle">Phase 3 — Context metadata</p>
+          </div>
+          <div class="card-icon">📋</div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Meeting Title</label>
+            <input type="text" class="field-input" id="meetingTitle" placeholder="e.g. Staff Development Meeting" />
+          </div>
+          <div class="field">
+            <label class="field-label">Date</label>
+            <input type="date" class="field-input" id="meetingDate" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Attendees</label>
+          <input type="text" class="field-input" id="attendees"
+            placeholder="e.g. Dr. Thomas (Principal), Ms. Rita (HOD Math), ..." />
+        </div>
+        <div class="field">
+          <label class="field-label">Meeting Notes</label>
+          <textarea class="text-area" id="notesText" rows="4"
+            placeholder="Paste or type additional meeting notes here..."></textarea>
+        </div>
+      </div>
+
+      <!-- STEP 4: Document Upload -->
+      <div class="card" id="card-docs">
+        <div class="card-header">
+          <div class="step-badge">04</div>
+          <div>
+            <h2 class="card-title">Supporting Documents</h2>
+            <p class="card-subtitle">Phase 3 — Slides, agendas, reports</p>
+          </div>
+          <div class="card-icon">📄</div>
+        </div>
+        <div class="docs-grid">
+          <div class="drop-zone drop-zone-sm" id="notesDropZone">
+            <input type="file" id="notesFile" accept=".txt,.pdf" class="hidden-input" />
+            <div class="drop-zone-content">
+              <div class="drop-icon-sm">📋</div>
+              <p class="drop-label-sm">Notes File</p>
+              <p class="drop-hint">.txt or .pdf</p>
+            </div>
+          </div>
+          <div class="drop-zone drop-zone-sm" id="slidesDropZone">
+            <input type="file" id="slidesFile" accept=".txt,.pdf" class="hidden-input" />
+            <div class="drop-zone-content">
+              <div class="drop-icon-sm">📊</div>
+              <p class="drop-label-sm">Slides File</p>
+              <p class="drop-hint">.txt or .pdf</p>
+            </div>
+          </div>
+        </div>
+        <div class="doc-files-preview" id="docFilesPreview"></div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT PANEL: ROLES + GENERATE ── -->
+    <div class="panel panel-right">
+
+      <!-- STEP 5: Role Selection -->
+      <div class="card card-roles" id="card-roles">
+        <div class="card-header">
+          <div class="step-badge">05</div>
+          <div>
+            <h2 class="card-title">Select Roles</h2>
+            <p class="card-subtitle">Phase 4 — Personalized summaries per role</p>
+          </div>
+          <div class="card-icon">🎯</div>
+        </div>
+        <p class="roles-hint">Select which roles should receive personalized meeting minutes:</p>
+        <div class="roles-grid" id="rolesGrid">
+          <div class="role-loading">
+            <div class="spinner"></div>
+            <span>Loading roles...</span>
+          </div>
+        </div>
+        <div class="role-actions">
+          <button class="btn-text" onclick="selectAllRoles()">Select All</button>
+          <span>·</span>
+          <button class="btn-text" onclick="clearAllRoles()">Clear All</button>
+        </div>
+      </div>
+
+      <!-- STEP 6: Generate -->
+      <div class="card card-generate" id="card-generate">
+        <div class="card-header">
+          <div class="step-badge">06</div>
+          <div>
+            <h2 class="card-title">Generate Minutes</h2>
+            <p class="card-subtitle">Phase 1 + 4 + 5 — AI-powered output</p>
+          </div>
+          <div class="card-icon">⚡</div>
+        </div>
+
+        <div class="toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="evalToggle" checked class="toggle-input" />
+            <span class="toggle-switch"></span>
+            Generate Evaluation Report
+          </label>
+          <span class="toggle-hint">Phase 5 — comparison analysis</span>
+        </div>
+
+        <div class="generate-summary" id="generateSummary">
+          <div class="summary-item" id="summaryTranscript">
+            <span class="summary-icon">📝</span>
+            <span class="summary-text">No transcript yet</span>
+          </div>
+          <div class="summary-item" id="summaryRoles">
+            <span class="summary-icon">🎯</span>
+            <span class="summary-text">No roles selected</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-generate" id="generateBtn" onclick="generateMinutes()">
+          <span class="btn-icon">⚡</span>
+          Generate Meeting Minutes
+        </button>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="card card-progress hidden" id="progressCard">
+        <div class="progress-header">
+          <div class="spinner"></div>
+          <span class="progress-title" id="progressTitle">Processing...</span>
+        </div>
+        <div class="progress-steps" id="progressSteps"></div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="card card-results hidden" id="resultsCard">
+        <div class="card-header">
+          <div class="result-icon">✅</div>
+          <div>
+            <h2 class="card-title">Generated Outputs</h2>
+            <p class="card-subtitle">Click to download or preview</p>
+          </div>
+        </div>
+        <div class="results-list" id="resultsList"></div>
+
+        <!-- Evaluation section -->
+        <div class="eval-section hidden" id="evalSection">
+          <div class="eval-header">
+            <span>📊</span>
+            <h3 class="eval-title">Phase 5: Evaluation Analysis</h3>
+          </div>
+          <pre class="eval-table" id="evalTable"></pre>
+          <pre class="eval-summary" id="evalSummary"></pre>
+        </div>
+
+        <!-- Preview pane -->
+        <div class="preview-pane hidden" id="previewPane">
+          <div class="preview-header">
+            <span class="preview-filename" id="previewFilename"></span>
+            <button class="btn-text" onclick="closePreview()">✕ Close</button>
+          </div>
+          <pre class="preview-content" id="previewContent"></pre>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-project">
+        <strong>Multilingual, Role-Based Automatic Meeting Minutes Generator using AI</strong><br />
+        Final Year Project · Computer Science & Engineering
+      </div>
+      <div class="footer-phases">
+        <span class="phase-tag">Phase 1: LLM Summarization</span>
+        <span class="phase-tag">Phase 2: Whisper ASR</span>
+        <span class="phase-tag">Phase 3: Multi-Source Context</span>
+        <span class="phase-tag">Phase 4: Role-Based Minutes</span>
+        <span class="phase-tag">Phase 5: Evaluation</span>
+        <span class="phase-tag">Phase 6: UI</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+
+</html>
