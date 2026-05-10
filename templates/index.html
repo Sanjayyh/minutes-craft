@@ -261,9 +261,13 @@
           </div>
         </div>
 
-        <button class="btn btn-primary btn-generate" id="generateBtn" onclick="generateMinutes()">
+        <button class="btn btn-primary btn-generate" id="generateBtn" onclick="generateMinutes()" disabled>
           <span class="btn-icon">⚡</span>
           Generate Meeting Minutes
+        </button>
+
+        <button class="btn btn-secondary" onclick="clearSession()">
+          Clear Session
         </button>
       </div>
 

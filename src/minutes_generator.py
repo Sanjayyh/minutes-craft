@@ -11,11 +11,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 
 load_dotenv()
-API_KEY = os.getenv("GOOGLE_API_KEY")
+# Configure API
 
-client = genai.Client(api_key=API_KEY)
-MODEL = "models/gemini-1.5-flash-8b"
+client = genai.Client(
+    api_key=os.getenv("GOOGLE_API_KEY")
+)
 
+MODEL = "gemini-2.0-flash"
 
 def load_transcript():
     path = DATA_DIR / "auto_minutes.txt"
@@ -29,7 +31,7 @@ def build_prompt(transcript, actions, decisions):
 Convert the following into structured meeting minutes.
 
 Transcript:
-{transcript}
+{transcript[:4000]}
 
 Action Items:
 {chr(10).join(actions)}
@@ -46,11 +48,67 @@ Format:
 - Action Items
 """
 
+def generate_fallback_minutes(
+    transcript,
+    actions,
+    decisions
+):
 
-def generate_minutes(prompt):
+    minutes = f"""
+==============================
+MEETING MINUTES
+==============================
 
-    max_retries = 5
+MEETING SUMMARY
+------------------------------
+{transcript[:1200]}
 
+KEY DECISIONS
+------------------------------
+"""
+
+    if decisions:
+
+        for d in decisions:
+            minutes += f"- {d.strip()}\n"
+
+    else:
+        minutes += "- No major decisions identified.\n"
+
+    minutes += """
+
+ACTION ITEMS
+------------------------------
+"""
+
+    if actions:
+
+        for a in actions:
+            minutes += f"- {a.strip()}\n"
+
+    else:
+        minutes += "- No action items identified.\n"
+
+    minutes += """
+
+NEXT STEPS
+------------------------------
+- Follow up on assigned tasks
+- Schedule next review meeting
+- Monitor pending activities
+
+"""
+
+    return minutes
+
+def generate_minutes(
+    prompt,
+    transcript,
+    actions,
+    decisions
+):
+
+    max_retries = 2
 
     for attempt in range(max_retries):
 
@@ -60,23 +118,36 @@ def generate_minutes(prompt):
                 model=MODEL,
                 contents=prompt,
                 config={
-                    "temperature": 0.2
+                    "max_output_tokens": 500
                 }
             )
 
-            return response.text.strip()
+            print("Gemini generation successful.")
+
+            return response.text
 
         except Exception as e:
 
             print(f"Attempt {attempt+1} failed: {e}")
 
             if attempt < max_retries - 1:
-                wait_time = 2 ** attempt
-                print(f"Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
-            else:
-                raise
 
+                wait_time = 2 ** attempt
+
+                print(f"Retrying in {wait_time} seconds...")
+
+                time.sleep(wait_time)
+
+            else:
+
+                print("Gemini failed.")
+                print("Using fallback generator...")
+
+                return generate_fallback_minutes(
+                    transcript,
+                    actions,
+                    decisions
+                )
 
 def load_roles():
     with open(DATA_DIR / "roles_config.json", "r") as f:
@@ -84,25 +155,33 @@ def load_roles():
 
 
 def process_minutes():
+
     transcript = load_transcript()
 
     actions = extract_action_items(transcript)
+
     decisions = extract_decisions(transcript)
 
-    roles = load_roles()
+    prompt = build_prompt(
+        transcript,
+        actions,
+        decisions
+    )
 
-    generated_files = []
+    print("Generating complete meeting minutes...")
 
-    for role, config in roles.items():
-        print(f"Generating {role} minutes...")
+    result = generate_minutes(
+    prompt,
+    transcript,
+    actions,
+    decisions
+)
 
-        prompt = build_prompt(transcript, actions, decisions)
+    output_path = DATA_DIR / "meeting_minutes.txt"
 
-        result = generate_minutes(prompt)
+    output_path.write_text(
+        result,
+        encoding="utf-8"
+    )
 
-        output_path = DATA_DIR / config["file"]
-        output_path.write_text(result, encoding="utf-8")
-
-        generated_files.append(config["file"])
-
-    return generated_files
+    return ["meeting_minutes.txt"]

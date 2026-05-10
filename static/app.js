@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-// ===== STATUS =====
+// STATUS 
 
 function updateStatus(status, text) {
     const dot = document.getElementById("statusDot");
@@ -40,7 +40,7 @@ function updateStatus(status, text) {
     if (label) label.textContent = text;
 }
 
-// ===== REMOVE FILE =====
+// REMOVE FILE 
 
 function removeFile(type) {
     if (type === "audio") {
@@ -50,7 +50,7 @@ function removeFile(type) {
     }
 }
 
-// ===== ROLES =====
+// ROLES 
 
 function loadRoles() {
 
@@ -100,7 +100,7 @@ function clearAllRoles() {
     document.querySelectorAll(".role-card").forEach(card => card.classList.remove("selected"));
 }
 
-// ===== TRANSCRIBE AUDIO =====
+// TRANSCRIBE AUDIO 
 
 async function transcribeAudio(event) {
 
@@ -119,6 +119,10 @@ async function transcribeAudio(event) {
     }
 
     updateStatus("online", "Transcribing audio...");
+    
+
+    document.getElementById("transcribeBtn").disabled = true;
+    document.getElementById("transcribeBtn").innerText = "Transcribing...";
 
     const formData = new FormData();
     formData.append("audio", selectedAudioFile);
@@ -158,13 +162,17 @@ async function transcribeAudio(event) {
 
         alert("Upload failed.");
 
+    }   finally {
+        document.getElementById("transcribeBtn").disabled = false;
+        document.getElementById("transcribeBtn").innerHTML =
+        '<span class="btn-icon">🔊</span> Transcribe Audio';
     }
 
     selectedAudioFile = null;
 
     document.getElementById("audioFile").value = "";
 }
-// ===== GENERATE MINUTES =====
+// GENERATE MINUTES 
 
 async function generateMinutes() {
 
@@ -173,6 +181,32 @@ async function generateMinutes() {
     try {
 
         updateStatus("online", "Generating meeting minutes...");
+
+        const progressCard = document.getElementById("progressCard");
+
+        progressCard.classList.remove("hidden");
+
+        document.getElementById("progressTitle").innerText =
+        "Generating AI Meeting Minutes...";
+
+        const steps = document.getElementById("progressSteps");
+
+        steps.innerHTML = `
+        <div class="progress-step active">
+            <span class="progress-step-icon">🎙️</span>
+            Processing transcript
+        </div>
+
+        <div class="progress-step active">
+            <span class="progress-step-icon">🤖</span>
+            Generating role-based minutes
+        </div>
+
+        <div class="progress-step active">
+            <span class="progress-step-icon">📄</span>
+            Preparing downloads
+        </div>
+        `;
 
         if (generateBtn) {
             generateBtn.disabled = true;
@@ -212,10 +246,11 @@ async function generateMinutes() {
             generateBtn.disabled = false;
             generateBtn.innerText = "Generate Minutes";
         }
+        progressCard.classList.add("hidden");
     }
 }
 
-// ===== SHOW RESULTS =====
+// SHOW RESULTS 
 
 function showResults(files) {
 
@@ -233,7 +268,15 @@ function showResults(files) {
 
         item.innerHTML = `
             <div class="result-role">${file}</div>
-            <button onclick="downloadFile('${file}')">Download</button>
+
+            <div class="result-actions">
+
+                <button class="result-btn download"
+                    onclick="downloadFile('${file}')">
+                    Download
+                </button>
+
+            </div>
         `;
 
         list.appendChild(item);
@@ -241,10 +284,33 @@ function showResults(files) {
     });
 
     resultsCard.classList.remove("hidden");
+
+    resultsCard.scrollIntoView({
+    behavior: "smooth"
+});
 }
 
-// ===== DOWNLOAD FILE =====
+// DOWNLOAD FILE 
 
 function downloadFile(filename) {
     window.location.href = "/data/" + filename;
+}
+
+// CLEAR SESSION
+
+function clearSession() {
+
+    document.getElementById("transcriptText").value = "";
+
+    document.getElementById("resultsCard").classList.add("hidden");
+
+    document.getElementById("audioPreview").classList.add("hidden");
+
+    document.getElementById("audioFile").value = "";
+
+    document.getElementById("generateBtn").disabled = true;
+
+    selectedAudioFile = null;
+
+    updateStatus("online", "System Ready");
 }
