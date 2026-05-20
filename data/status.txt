@@ -1,0 +1,29 @@
+Converting audio...
+Starting transcription...
+Detected language: en
+
+Transcribing segments:
+
+[0.00s -> 4.20s] Hello everyone, thank you guys for coming to our weekly student success meeting
+[4.80s -> 11.44s] And let's just get started. So I have our list of chronically absent students here, and I've been noticing a troubling trend
+[12.12s -> 16.40s] A lot of students are skipping on Fridays. Does anyone have any idea what's going on?
+[16.92s -> 21.14s] I've heard some of my mentees talking about how it's really hard to get out of bed on Fridays
+[21.32s -> 27.12s] It might be good if we did something like a pancake breakfast to encourage them to come. I think that's a great idea
+[27.48s -> 29.48s] Let's try that next week
+[29.80s -> 34.16s] It might also be because a lot of students have been getting sick now that it's getting colder outside
+[34.16s -> 38.12s] I've had a number of students come by my office with symptoms like sniffling and coughing
+[38.12s -> 41.76s] We should put up posters with tips for not getting sick since it's almost flu season
+[41.76s -> 44.28s] Like, you know, wash your hands after the bathroom stuff like that
+[44.28s -> 48.96s] I think that's a good idea and it'll be a good reminder for the teachers as well
+[49.08s -> 53.84s] So one other thing I wanted to talk about there's a student I've noticed here John Smith
+[54.20s -> 59.68s] He's missed seven days already and it's only November does anyone have an idea what's going on with him
+[59.68s -> 64.60s] I might be able to fill in the gaps there. I talked to John today and he's really stressed out
+[64.76s -> 68.80s] He's been dealing with helping his parents take care of his younger siblings during the day
+[69.56s -> 73.04s] It might actually be a good idea if he spoke to the guidance counselor a little bit
+[73.04s -> 77.44s] I can talk to John today if you want to send him to my office after you meet with him
+[77.48s -> 79.84s] It's a lot to deal with for a middle schooler
+[80.56s -> 85.96s] Great thanks, and and I can help out with the family's childcare needs. I'll look for some free or low-cost
+[87.12s -> 91.44s] Resources in the community to share with John and he can share them with his family great
+[91.44s -> 96.96s] Well some really good ideas here today. Thanks for coming. And if no one has anything else, I think we can wrap up
+
+Transcription completed successfully.

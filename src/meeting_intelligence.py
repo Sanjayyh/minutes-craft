@@ -1,39 +1,81 @@
 import re
 
 ACTION_KEYWORDS = [
-    "should", "must", "need to", "will",
-    "submit", "complete", "prepare", "finish"
+    "should",
+    "need to",
+    "must",
+    "will",
+    "let's",
+    "organize",
+    "create",
+    "schedule",
+    "follow up"
 ]
+
+def extract_action_items(transcript):
+
+    actions = []
+
+    # Better sentence splitting
+    sentences = re.split(
+        r'(?<=[.!?]) +',
+        transcript
+    )
+
+    for sentence in sentences:
+
+        sentence = sentence.strip()
+
+        for keyword in ACTION_KEYWORDS:
+
+            if keyword.lower() in sentence.lower():
+
+                if len(sentence) < 180:
+
+                    actions.append(sentence)
+
+                break
+
+    return list(set(actions))
 
 DECISION_KEYWORDS = [
-    "decided", "approved", "agreed",
-    "confirmed", "finalized"
+    "agreed",
+    "approved",
+    "decided",
+    "great idea",
+    "let's try",
+    "confirmed"
 ]
 
+def extract_decisions(transcript):
+
+    decisions = []
+
+    sentences = re.split(
+        r'(?<=[.!?]) +',
+        transcript
+    )
+
+    for sentence in sentences:
+
+        sentence = sentence.strip()
+
+        for keyword in DECISION_KEYWORDS:
+
+            if keyword.lower() in sentence.lower():
+
+                if len(sentence) < 180:
+
+                    decisions.append(sentence)
+
+                break
+
+    return list(set(decisions))
 
 def split_sentences(text):
     return re.split(r'[.?!\n]', text)
 
 
-def extract_action_items(transcript: str):
-    sentences = split_sentences(transcript)
-    actions = []
-
-    for s in sentences:
-        s_clean = s.strip()
-        if any(k in s_clean.lower() for k in ACTION_KEYWORDS):
-            actions.append(s_clean)
-
-    return list(set(actions))
 
 
-def extract_decisions(transcript: str):
-    sentences = split_sentences(transcript)
-    decisions = []
 
-    for s in sentences:
-        s_clean = s.strip()
-        if any(k in s_clean.lower() for k in DECISION_KEYWORDS):
-            decisions.append(s_clean)
-
-    return list(set(decisions))

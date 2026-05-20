@@ -1,4 +1,5 @@
 let selectedAudioFile = null;
+let statusInterval = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -29,6 +30,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+function startStatusPolling() {
+
+    const popup = document.getElementById("loadingPopup");
+
+    const statusText =
+        document.getElementById("statusText");
+
+    popup.classList.remove("hidden");
+
+    const interval = setInterval(async () => {
+
+        const response =
+            await fetch("/status");
+
+        const data =
+            await response.json();
+
+        statusText.textContent =
+            data.status;
+
+    }, 1000);
+
+    return interval;
+}
 
 // STATUS 
 
@@ -119,6 +145,7 @@ async function transcribeAudio(event) {
     }
 
     updateStatus("online", "Transcribing audio...");
+    statusInterval = startStatusPolling();
     
 
     document.getElementById("transcribeBtn").disabled = true;
@@ -146,6 +173,7 @@ async function transcribeAudio(event) {
         document.getElementById("transcriptText").value = data.transcript;
 
         updateStatus("online", "Transcription completed");
+        
 
         // Enable generate button AFTER transcription finishes
         if (generateBtn) {
@@ -154,8 +182,20 @@ async function transcribeAudio(event) {
 
         alert("Transcription completed successfully!");
 
+        clearInterval(statusInterval);
+
+        document
+            .getElementById("loadingPopup")
+            .classList.add("hidden");
+
     } catch (error) {
 
+
+        clearInterval(statusInterval);
+
+        document
+            .getElementById("loadingPopup")
+            .classList.add("hidden");
         console.error("Upload error:", error);
 
         updateStatus("offline", "Transcription failed");
@@ -213,6 +253,13 @@ async function generateMinutes() {
             generateBtn.innerText = "Generating...";
         }
 
+        updateStatus("online", "Generating meeting minutes...");
+
+        statusInterval = startStatusPolling();
+
+        document.getElementById("popupTitle").innerText =
+            "Generating Meeting Minutes...";
+
         const response = await fetch("/generate", {
             method: "POST"
         });
@@ -232,8 +279,20 @@ async function generateMinutes() {
 
         updateStatus("online", "Minutes generated successfully");
 
+        clearInterval(statusInterval);
+
+document
+    .getElementById("loadingPopup")
+    .classList.add("hidden");
+        
+
     } catch (error) {
 
+        clearInterval(statusInterval);
+
+document
+    .getElementById("loadingPopup")
+    .classList.add("hidden");
         console.error(error);
 
         updateStatus("offline", "Generation failed");

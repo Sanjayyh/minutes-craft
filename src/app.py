@@ -7,6 +7,7 @@ from minutes_generator import process_minutes
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
+STATUS_FILE = DATA_DIR / "status.txt"
 
 app = Flask(
     __name__,
@@ -19,6 +20,20 @@ app = Flask(
 def home():
     return render_template("index.html")
 
+@app.route("/status")
+def get_status():
+
+    if STATUS_FILE.exists():
+
+        return jsonify({
+            "status": STATUS_FILE.read_text(
+                encoding="utf-8"
+            )
+        })
+
+    return jsonify({
+        "status": ""
+    })
 
 @app.route("/transcribe", methods=["POST"])
 def transcribe():
@@ -41,6 +56,8 @@ def transcribe():
         file.save(filepath)
 
         print("Audio saved:", filepath)
+
+
 
         # Delete old transcript if exists
         transcript_file = DATA_DIR / "auto_minutes.txt"
